@@ -22,19 +22,37 @@ namespace CoreCodeCamp.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<ActionResult<CampModel[]>> Get()
+        public async Task<ActionResult<CampModel[]>> Get(bool includeTalks = false)
         {
             try
             {
-                var results = await _repository.GetAllCampsAsync();
-                return _mapper.Map<CampModel[]>(results); ;
+                var results = await _repository.GetAllCampsAsync(includeTalks);
+                return _mapper.Map<CampModel[]>(results);
             }
             catch (Exception)
             {
 
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
-            
+
+        }
+        [HttpGet("{moniker}")]
+        public async Task<ActionResult<CampModel>> Get(string moniker)
+        {
+            try
+            {
+                var result = await _repository.GetCampAsync(moniker);
+                if (result == null)
+                {
+                    return NotFound();
+                }
+                return _mapper.Map<CampModel>(result);
+            }
+            catch (Exception)
+            {
+
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
         }
     }
 }
